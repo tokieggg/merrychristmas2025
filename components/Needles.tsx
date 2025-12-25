@@ -42,7 +42,6 @@ const NeedleShaderMaterial = {
      
       // Floating movement (more subtle on text to keep it readable)
       float floatIntensity = (1.0 - t);
-      // Reduced wobble for text readability
       pos.x += sin(uTime * 0.5 + aRandom * 10.0) * 0.05 * floatIntensity;
       pos.y += cos(uTime * 0.3 + aRandom * 20.0) * 0.05 * floatIntensity;
       pos.z += sin(uTime * 0.7 + aRandom * 15.0) * 0.05 * floatIntensity;
@@ -52,7 +51,7 @@ const NeedleShaderMaterial = {
       pos.z += pos.z * breathe;
      
       vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
-      gl_PointSize = (2.5 * aRandom + 0.8) * (10.0 / -mvPosition.z);  // ← Smaller points = more visible gaps
+      gl_PointSize = (2.0 * aRandom + 0.6) * (10.0 / -mvPosition.z);  // ← Even smaller points for maximum gaps
       gl_Position = projectionMatrix * mvPosition;
     }
   `,
@@ -68,10 +67,8 @@ const NeedleShaderMaterial = {
       // Sparkle effect
       float sparkle = sin(uTime * 3.0 + vRandom * 100.0);
      
-      // Mix colors based on progress (0 = Gold Text, 1 = Green Tree)
-      // We use smoothstep to make the color transition happen during the morph
       vec3 targetBaseColor = mix(uColorText, uColorTree, vProgress);
-      vec3 highlightColor = mix(vec3(1.0, 1.0, 1.0), vec3(0.06, 0.42, 0.25), vProgress); // White highlight for gold, Light green for tree
+      vec3 highlightColor = mix(vec3(1.0, 1.0, 1.0), vec3(0.06, 0.42, 0.25), vProgress);
       vec3 finalColor = mix(targetBaseColor, highlightColor, sparkle * 0.5 + 0.5);
      
       float alpha = 1.0 - smoothstep(0.3, 0.5, r);
@@ -146,20 +143,17 @@ export const Needles: React.FC<NeedlesProps> = ({ count, treeState, name }) => {
     if (name.trim()) lines.push(name.trim());
     const geometries: THREE.BufferGeometry[] = [];
     
-    const size = 1.2;               // ← Same letter size as before
+    const size = 1.2;               // ← Same letter size
     const lineHeight = size * 1.8;   // Nice vertical spacing
 
     lines.forEach((line, i) => {
         const geo = new TextGeometry(line, {
             font: font,
             size: size,
-            depth: 0.02,              // ← Very thin – reduces solid fill
+            depth: 0.001,             // ← Almost completely flat (no thickness)
             curveSegments: 12,
-            bevelEnabled: true,
-            bevelThickness: 0.03,     // ← Thinner bevel
-            bevelSize: 0.01,          // ← Tiny bevel = more open gaps inside letters
-            bevelOffset: 0,
-            bevelSegments: 5,
+            bevelEnabled: false,      // ← Disabled bevel = pure thin stroke, maximum gaps
+            // No bevel settings needed since disabled
         });
         geo.computeBoundingBox();
         const width = geo.boundingBox!.max.x - geo.boundingBox!.min.x;
@@ -177,7 +171,6 @@ export const Needles: React.FC<NeedlesProps> = ({ count, treeState, name }) => {
     const tempPosition = new THREE.Vector3();
     const newScatter = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
-      // 100% of particles form the text for maximum visibility
       sampler.sample(tempPosition);
       newScatter[i * 3] = tempPosition.x;
       newScatter[i * 3 + 1] = tempPosition.y;
