@@ -52,7 +52,7 @@ const NeedleShaderMaterial = {
       pos.z += pos.z * breathe;
      
       vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
-      gl_PointSize = (3.0 * aRandom + 1.0) * (10.0 / -mvPosition.z);  // ← Smaller particles for more gaps
+      gl_PointSize = (2.5 * aRandom + 0.8) * (10.0 / -mvPosition.z);  // ← Smaller points = more visible gaps
       gl_Position = projectionMatrix * mvPosition;
     }
   `,
@@ -146,18 +146,18 @@ export const Needles: React.FC<NeedlesProps> = ({ count, treeState, name }) => {
     if (name.trim()) lines.push(name.trim());
     const geometries: THREE.BufferGeometry[] = [];
     
-    const size = 1.2;           // ← Smaller letters overall
-    const lineHeight = size * 1.8; // ← More vertical space between lines
+    const size = 1.2;               // ← Same letter size as before
+    const lineHeight = size * 1.8;   // Nice vertical spacing
 
     lines.forEach((line, i) => {
         const geo = new TextGeometry(line, {
             font: font,
             size: size,
-            depth: 0.05,          // ← Much thinner (almost flat) – fewer particles on sides
+            depth: 0.02,              // ← Very thin – reduces solid fill
             curveSegments: 12,
             bevelEnabled: true,
-            bevelThickness: 0.05, // ← Thinner bevel
-            bevelSize: 0.02,      // ← Smaller bevel = more open gaps inside letters
+            bevelThickness: 0.03,     // ← Thinner bevel
+            bevelSize: 0.01,          // ← Tiny bevel = more open gaps inside letters
             bevelOffset: 0,
             bevelSegments: 5,
         });
