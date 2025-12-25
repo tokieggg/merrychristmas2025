@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react';
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     return {
-      base: '/christmasprompt2025/',   // ← This line is required for GitHub Pages
+      base: '/merrychristmas2025/',   // ← This line is required for GitHub Pages
       server: {
         port: 3000,
         host: '0.0.0.0',
